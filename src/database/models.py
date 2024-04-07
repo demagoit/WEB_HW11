@@ -21,8 +21,8 @@ class Record(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     first_name: Mapped[str] = mapped_column(
         String(30), nullable=False, index=True)
-    last_name: Mapped[str] = mapped_column(String(30), index=True)
-    email: Mapped[str] = mapped_column(String(30), index=True)
-    birthday: Mapped[Date] = mapped_column(Date)
-    notes: Mapped[str] = mapped_column(String(150))
+    last_name: Mapped[str] = mapped_column(String(30), nullable=True)
+    email: Mapped[str] = mapped_column(String(30), nullable=True)
+    birthday: Mapped[Date] = mapped_column(Date, nullable=True)
+    notes: Mapped[str] = mapped_column(String(150), nullable=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now())
