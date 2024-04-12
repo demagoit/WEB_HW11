@@ -1,12 +1,6 @@
-# import sys
-# import os
-# dir = os.path.split(os.path.dirname(__file__))
-# # print(dir)
-# sys.path.append(dir)
-
 import contextlib
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
-from conf.config import config
+from src.conf.config import config
 
 
 class DatabaseSessionManager():
@@ -23,30 +17,16 @@ class DatabaseSessionManager():
         try:
             yield session
         except Exception as err:
-            print(err)
             await session.rollback()
         finally:
             await session.close()
 
 
-
+# print('---------------', config.DB_URL)
 
 sessionmanager = DatabaseSessionManager(config.DB_URL)
 
 
 async def get_db():
-    with sessionmanager.session as session:
+    async with sessionmanager.session() as session:
         yield session
-
-# SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://admin:changeme@localhost:5432/rest_app"
-
-# engine = create_engine(SQLALCHEMY_DATABASE_URL)
-# SessionLocal = sessionmaker(autoflush=False, autocommit=False, bind=engine)
-
-
-# def get_db():
-#     db = SessionLocal()
-#     try:
-#         yield db
-#     finally:
-#         db.close()
