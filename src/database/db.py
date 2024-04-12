@@ -18,6 +18,8 @@ class DatabaseSessionManager():
             yield session
         except Exception as err:
             await session.rollback()
+            print('Error in db.py')
+            raise
         finally:
             await session.close()
 
