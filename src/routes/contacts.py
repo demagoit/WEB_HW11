@@ -65,7 +65,7 @@ async def create_contact(body: RecordSchema, db: AsyncSession = Depends(get_db))
 
 
 @router.put("/{rec_id}", response_model=RecordResponseSchema)
-async def update_contact(body: RecordSchema, rec_id: int = Path(description="ID of record to change"), db: AsyncSession = Depends(get_db)):
+async def update_contact(body: RecordUpdateSchema, rec_id: int = Path(description="ID of record to change"), db: AsyncSession = Depends(get_db)):
     result = await rep_contacts.update_contact(record_id=rec_id, body=body, db=db)
     return result
 

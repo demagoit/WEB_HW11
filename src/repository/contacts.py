@@ -51,7 +51,7 @@ async def create_contact(body: RecordSchema, db: AsyncSession):
     return rec
 
 
-async def update_contact(record_id: int, body: RecordSchema, db: AsyncSession):
+async def update_contact(record_id: int, body: RecordUpdateSchema, db: AsyncSession):
     stmt = select(Record).filter_by(id=record_id)
     result = await db.execute(stmt)
     result = result.scalar_one_or_none()
