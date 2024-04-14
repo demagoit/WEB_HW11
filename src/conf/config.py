@@ -10,4 +10,14 @@ class Config:
             port = config['services']['db']['ports'][0].split(':')[0]
         self.DB_URL = f"postgresql+asyncpg://{user}:{pwd}@localhost:{port}/{db}"
 
+
+class Auth:
+    def __init__(self, path: str = 'auth.yaml'):
+        with open(path, 'r') as fh:
+            config = yaml.safe_load(fh)
+            self.SECRET_KEY = config['secret']
+            self.ALGORITHM = config['algorithm']
+
+
 config = Config()
+auth = Auth()

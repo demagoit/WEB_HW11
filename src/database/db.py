@@ -19,6 +19,8 @@ class DatabaseSessionManager():
         except Exception as err:
             await session.rollback()
             print('Error in db.py')
+            print(err)
+            print('-------------')
             raise
         finally:
             await session.close()
