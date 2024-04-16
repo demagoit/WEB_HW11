@@ -1,5 +1,5 @@
 import contextlib
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 from src.conf.config import config
 
 
@@ -19,14 +19,9 @@ class DatabaseSessionManager():
         except Exception as err:
             await session.rollback()
             print('Error in db.py')
-            print(err)
-            print('-------------')
             raise
         finally:
             await session.close()
-
-
-# print('---------------', config.DB_URL)
 
 sessionmanager = DatabaseSessionManager(config.DB_URL)
 

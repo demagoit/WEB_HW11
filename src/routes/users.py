@@ -54,11 +54,8 @@ async def login_user(body: OAuth2PasswordRequestForm =Depends(), db: AsyncSessio
 @router.get("/refresh", response_model=TokenSchema)
 async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(get_refresh_token), db: AsyncSession = Depends(get_db)):
     token = credentials.credentials
-    print(token)
     email = await auth_service.decode_refresh_token(token=token)
-    print(email)
     user = await rep_users.get_user_by_email(email=email, db=db)
-    print(user)
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
@@ -67,9 +64,10 @@ async def refresh_token(credentials: HTTPAuthorizationCredentials = Depends(get_
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid token')
     else:
-        response = TokenSchema()
-        response.access_token = await auth_service.create_access_token(data={'sub': email})
-        response.refresh_token = await auth_service.create_refresh_token(data={'sub': email})
+        response = TokenSchema(
+            access_token = await auth_service.create_access_token(data={'sub': email}),
+            refresh_token = await auth_service.create_refresh_token(data={'sub': email})
+        )
 
         refreshed_user = await rep_users.update_user_token(user=user, token=response.refresh_token, db=db)
         if refreshed_user.refresh_token != response.refresh_token:

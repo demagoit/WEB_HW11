@@ -24,30 +24,25 @@ class Auth():
 
     async def create_access_token(self, data: dict, expires_delta: Optional[int] = 15) -> str:
         to_encode = data.copy()
-        # TODO resolve datetime UTC issue
-        # now = datetime.now(timezone.utc)
-        # expire = now + timedelta(minutes=expires_delta)
-        # to_encode.update({'iat': now, 'expire': expire, 'scope': 'access_token'})
-        to_encode.update({'scope': 'access_token'})
+        now = datetime.now(timezone.utc)
+        expire = now + timedelta(minutes=expires_delta)
+        to_encode.update(
+            {'iat': now.timestamp(), 'exp': expire.timestamp(), 'scope': 'access_token'})
         encoded_access_token = jwt.encode(to_encode, key=self.SECRET_KEY, algorithm=self.ALGORITHM)
         return encoded_access_token
 
     async def create_refresh_token(self, data: dict, expires_delta: Optional[int] = 7*24*60) -> str:
         to_encode = data.copy()
-        # TODO resolve datetime UTC issue
-        # now = datetime.now(timezone.utc)
-        # expire = now + timedelta(minutes=expires_delta)
-        # to_encode.update(
-        #     {'iat': now, 'expire': expire, 'scope': 'refresh_token'})
-        to_encode.update({'scope': 'refresh_token'})
+        now = datetime.now(timezone.utc)
+        expire = now + timedelta(minutes=expires_delta)
+        to_encode.update(
+            {'iat': now.timestamp(), 'exp': expire.timestamp(), 'scope': 'refresh_token'})
         encoded_refresh_token = jwt.encode(
             to_encode, key=self.SECRET_KEY, algorithm=self.ALGORITHM)
         return encoded_refresh_token
 
     async def decode_refresh_token(self, token: str) -> str:
-        # TODO JWTError, token header not hte same as in video1 1:54:39
         try:
-            print(self.SECRET_KEY, self.ALGORITHM)
             payload = jwt.decode(token=token, key=self.SECRET_KEY, algorithms=[self.ALGORITHM])
             if payload['scope'] == 'refresh_token':
                 email = payload['sub']

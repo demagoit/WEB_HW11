@@ -5,7 +5,7 @@ from datetime import datetime, date
 class RecordSchema(BaseModel):
     first_name: str = Field(min_length=3, max_length=30)
     last_name: str | None = Field(min_length=0, max_length=30)
-    email: str | None = Field(min_length=0, max_length=30)
+    email: EmailStr | None
     birthday: date | None = Field()
     notes: str | None = Field(min_length=0, max_length=150)
 
