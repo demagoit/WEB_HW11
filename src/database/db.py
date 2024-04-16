@@ -1,5 +1,5 @@
 import contextlib
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 from src.conf.config import config
 
 
@@ -22,9 +22,6 @@ class DatabaseSessionManager():
             raise
         finally:
             await session.close()
-
-
-# print('---------------', config.DB_URL)
 
 sessionmanager = DatabaseSessionManager(config.DB_URL)
 
