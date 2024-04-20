@@ -1,23 +1,35 @@
-import yaml
+from pydantic_settings import BaseSettings
+from pydantic import EmailStr, ConfigDict, field_validator
 
-class Config:
-    def __init__(self, path: str = 'docker-compose.yaml'):
-        with open(path, 'r') as fh:
-            config = yaml.safe_load(fh)
-            user = config['services']['db']['environment']['POSTGRES_USER']
-            pwd = config['services']['db']['environment']['POSTGRES_PASSWORD']
-            db = config['services']['db']['environment']['POSTGRES_DB']
-            port = config['services']['db']['ports'][0].split(':')[0]
-        self.DB_URL = f"postgresql+asyncpg://{user}:{pwd}@localhost:{port}/{db}"
+class Settings(BaseSettings):
+    MAIL_USERNAME: EmailStr
+    MAIL_PASSWORD: str
+    MAIL_FROM: EmailStr
+    MAIL_PORT: int
+    MAIL_SERVER: str
 
+    SECRET_JWT: str
+    ALGORITHM_JWT: str
 
-class Auth:
-    def __init__(self, path: str = 'auth.yaml'):
-        with open(path, 'r') as fh:
-            config = yaml.safe_load(fh)
-            self.SECRET_KEY = config['secret']
-            self.ALGORITHM = config['algorithm']
+    POSTGRES_DB: str
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: int
 
+    DB_URL: str
 
-config = Config()
-auth = Auth()
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_PASSWORD: str | None
+
+    model_config = ConfigDict(extra='ignore', env_file='.env', env_file_encoding='utf-8')
+
+    @field_validator('ALGORITHM_JWT')
+    def validate_algo(cls, value):
+        accepted = ['HS256', 'HS512']
+        if value not in accepted:
+            raise ValueError(f'Accepted algorithms are: {accepted}')
+        return value
+
+config = Settings()

@@ -1,6 +1,6 @@
-FastAPI, Postgres, SQLAlchemy, Pydantic 
+FastAPI, Postgres, Redis, SQLAlchemy, Pydantic 
 
-in auth.yaml set desired JWT crypto algorithm and secret
+rename .env_example to .env and set configuration variables
 
 mkdir bd_data
 
@@ -8,6 +8,6 @@ sudo docker compose up
 
 chmod 777 -R bd_data/pgdata
 
-uvicorn main:app --reload
+python3 main.py
 
 http://127.0.0.1:8000/docs#/
