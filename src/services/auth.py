@@ -7,14 +7,14 @@ from passlib.context import CryptContext
 from jose import JWTError, jwt
 from src.database.db import get_db
 from src.repository import users as rep_users
-from src.conf.config import auth
+from src.conf.config import config
 
 class Auth():
 
     pwd_context = CryptContext(schemes=['bcrypt'])
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/api/auth/login')
-    SECRET_KEY = auth.SECRET_KEY
-    ALGORITHM = auth.ALGORITHM
+    SECRET_KEY = config.SECRET_JWT
+    ALGORITHM = config.ALGORITHM_JWT
 
     def verify_password(self, plaine_pwd: str, hashed_pwd: str) -> bool:
         return self.pwd_context.verify(plaine_pwd, hashed_pwd)

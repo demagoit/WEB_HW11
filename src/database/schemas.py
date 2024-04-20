@@ -49,8 +49,10 @@ class UserDBSchema(BaseModel):
     refresh_token: str | None = Field(
         min_length=3, max_length=255, default=None)
 
-
 class TokenSchema(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
+
+class EmailSchema(BaseModel):
+    email: EmailStr
