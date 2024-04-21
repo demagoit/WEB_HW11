@@ -5,7 +5,8 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from src.database.db import get_db
+import pickle
+from src.database.db import get_db, rds_cache
 from src.repository import users as rep_users
 from src.conf.config import config
 
@@ -15,6 +16,7 @@ class Auth():
     oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/api/auth/login')
     SECRET_KEY = config.SECRET_JWT
     ALGORITHM = config.ALGORITHM_JWT
+    cache = rds_cache
 
     def verify_password(self, plaine_pwd: str, hashed_pwd: str) -> bool:
         return self.pwd_context.verify(plaine_pwd, hashed_pwd)
@@ -41,10 +43,20 @@ class Auth():
             to_encode, key=self.SECRET_KEY, algorithm=self.ALGORITHM)
         return encoded_refresh_token
 
-    async def decode_refresh_token(self, token: str) -> str:
+    async def create_email_token(self, data: dict, expires_delta: Optional[int] = 7*24*60) -> str:
+        to_encode = data.copy()
+        now = datetime.now(timezone.utc)
+        expire = now + timedelta(minutes=expires_delta)
+        to_encode.update(
+            {'iat': now.timestamp(), 'exp': expire.timestamp(), 'scope': 'email_token'})
+        encoded_email_token = jwt.encode(
+            to_encode, key=self.SECRET_KEY, algorithm=self.ALGORITHM)
+        return encoded_email_token
+
+    async def decode_token(self, token: str, scope: str) -> str:
         try:
             payload = jwt.decode(token=token, key=self.SECRET_KEY, algorithms=[self.ALGORITHM])
-            if payload['scope'] == 'refresh_token':
+            if payload['scope'] == scope:
                 email = payload['sub']
                 return email
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Invalid scope of token')
@@ -71,9 +83,15 @@ class Auth():
         except JWTError:
             raise credential_exception
         
-        user = await rep_users.get_user_by_email(email=email, db=db)
+        user = await self.cache.get(f'user:{email}')
         if user is None:
-            raise credential_exception
+            user = await rep_users.get_user_by_email(email=email, db=db)
+            if user is None:
+                raise credential_exception
+            await self.cache.set(f'user:{email}', pickle.dumps(user))
+            await self.cache.expire(f'user:{email}', 900)
+        else:
+            user = pickle.loads(user)
         return user
 
 auth_service = Auth()

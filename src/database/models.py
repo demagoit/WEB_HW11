@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Integer, String, DateTime, func, Date, ForeignKey
+from sqlalchemy import Integer, String, Boolean, DateTime, func, Date, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 Base = declarative_base()
@@ -39,4 +39,5 @@ class User(Base):
     pwd_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     avatar: Mapped[str] = mapped_column(String(255), nullable=True)
     refresh_token: Mapped[str] = mapped_column(String(255), nullable=True)
+    confirmed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
 
